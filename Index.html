@@ -1,0 +1,330 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vertex Axioma® - Ingesta Previa & Petrificación de Escritos</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        :root {
+            --primary: #1A2B4C;
+            --secondary: #0066CC;
+            --success: #0D8A56;
+            --warning: #D4AF37;
+            --bg-light: #F8F9FA;
+            --border: #DEE2E6;
+        }
+
+        body { 
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background-color: var(--bg-light); 
+            margin: 0; 
+            padding: 25px; 
+            color: #212529; 
+        }
+        .container { 
+            max-width: 950px; 
+            margin: auto; 
+            background: white; 
+            border-radius: 10px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.08); 
+            padding: 25px; 
+            border: 1px solid var(--border); 
+        }
+        .header { 
+            border-bottom: 2px solid var(--border); 
+            padding-bottom: 15px; 
+            margin-bottom: 25px; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+        }
+        .header h1 { 
+            margin: 0; 
+            font-size: 1.3rem; 
+            color: var(--primary); 
+        }
+        .badge { 
+            background: var(--primary); 
+            color: white; 
+            padding: 5px 12px; 
+            border-radius: 4px; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+        }
+
+        .form-group { margin-bottom: 15px; }
+        label { 
+            font-weight: bold; 
+            font-size: 0.85rem; 
+            color: var(--primary); 
+            display: block; 
+            margin-bottom: 5px; 
+        }
+        select, input[type="text"], input[type="file"] { 
+            width: 100%; 
+            padding: 10px; 
+            border: 1px solid var(--border); 
+            border-radius: 6px; 
+            box-sizing: border-box; 
+            font-size: 0.9rem; 
+        }
+
+        .btn-main { 
+            padding: 12px 20px; 
+            cursor: pointer; 
+            border: none; 
+            border-radius: 6px; 
+            background: var(--secondary); 
+            color: white; 
+            font-weight: bold; 
+            width: 100%; 
+            font-size: 1rem; 
+            transition: opacity 0.2s; 
+        }
+        .btn-main:hover { opacity: 0.9; }
+
+        .receipt-card { 
+            background: #0f172a; 
+            color: white; 
+            padding: 20px; 
+            border-radius: 8px; 
+            border-top: 4px solid var(--warning); 
+            margin-top: 25px; 
+            display: none; 
+        }
+        .hash-box { 
+            font-family: monospace; 
+            font-size: 0.8rem; 
+            color: #38bdf8; 
+            background: #1e293b; 
+            padding: 10px; 
+            border-radius: 4px; 
+            word-break: break-all; 
+            margin: 8px 0; 
+        }
+
+        .qr-container { 
+            background: white; 
+            padding: 10px; 
+            border-radius: 6px; 
+            display: inline-block; 
+            margin-top: 10px; 
+        }
+        
+        .snippet-box { 
+            background: #f1f5f9; 
+            color: #0f172a; 
+            border: 1px dashed #cbd5e1; 
+            padding: 12px; 
+            border-radius: 6px; 
+            font-size: 0.85rem; 
+            font-family: monospace; 
+            margin-top: 15px; 
+            white-space: pre-wrap; 
+            word-break: break-all; 
+        }
+        .btn-copy { 
+            background: var(--success); 
+            color: white; 
+            border: none; 
+            padding: 6px 12px; 
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-size: 0.8rem; 
+            font-weight: bold; 
+            float: right; 
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1>VERTEX AXIOMA® — API Ingesta de Inicio de Demanda e Informes</h1>
+        <span class="badge">PETRIFICACIÓN DE PRUEBA 4.0</span>
+    </div>
+
+    <div class="form-group">
+        <label for="tipoDocumento">Tipo de Documento Legal / Pericial:</label>
+        <select id="tipoDocumento">
+            <option value="INICIO_DEMANDA">Escrito de Inicio de Demanda</option>
+            <option value="INFORME_FORENSE">Informe Pericial / Forense Digital</option>
+            <option value="MEDIDA_CAUTELAR">Solicitud de Medida Cautelar Urgente</option>
+            <option value="PRUEBA_DOCUMENTAL">Anexo Documental de Prueba</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="caratulaExpediente">Carátula / Referencia Interna (Opcional):</label>
+        <input type="text" id="caratulaExpediente" placeholder="Ej: Perez c/ Gomez s/ Daños y Perjuicios">
+    </div>
+
+    <div class="form-group">
+        <label for="documentoInput">Seleccionar Documento (.pdf, .docx, .zip, .json):</label>
+        <input type="file" id="documentoInput">
+    </div>
+
+    <button class="btn-main" onclick="procesarEscritoJudicial()">⚡ HASHEAR, PETRIFICAR Y GENERAR ENLACE DE CORREO</button>
+
+    <div id="comprobantePanel" class="receipt-card">
+        <h3 style="color: var(--warning); margin-top: 0;">🛡️ PRUEBA PETRIFICADA — LISTA PARA ADJUNTAR</h3>
+        
+        <p style="font-size: 0.85rem;"><strong>Tipo:</strong> <span id="resTipo"></span></p>
+        <p style="font-size: 0.85rem;"><strong>Referencia:</strong> <span id="resCaratula"></span></p>
+        
+        <label style="color: #94a3b8;">Hash SHA-256 del Documento (DNA Digital):</label>
+        <div id="resHash" class="hash-box"></div>
+
+        <label style="color: #94a3b8;">Sello de Inmutabilidad Transfronteriza (ID Registro):</label>
+        <div id="resSello" class="hash-box" style="color: #4ade80;"></div>
+
+        <div style="display: flex; gap: 20px; align-items: center; margin-top: 15px;">
+            <div>
+                <label style="color: #94a3b8;">Código QR de Verificación (Polygon Amoy):</label>
+                <div class="qr-container" id="qrcode"></div>
+            </div>
+            <div style="flex: 1;">
+                <label style="color: #94a3b8;">Texto listo para copiar y pegar en el Correo Oficial:</label>
+                <div class="snippet-box">
+                    <button class="btn-copy" onclick="copiarSnippet()">📋 Copiar</button>
+                    <div id="snippetTexto"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+// ======================================================
+// CONFIGURACIÓN CENTRALIZADA DE ENTORNO
+// ======================================================
+// Para Testnet Amoy: "https://amoy.polygonscan.com/tx/"
+// Para Mainnet producción: "https://polygonscan.com/tx/"
+const POLYGON_EXPLORER_BASE = "https://amoy.polygonscan.com/tx/";
+const API_ENDPOINT = "http://localhost:3000/api/v2/petrificar-adn-digital";
+
+let qrCodeObj = null;
+
+async function procesarEscritoJudicial() {
+    const fileInput = document.getElementById('documentoInput');
+    const tipo = document.getElementById('tipoDocumento').value;
+    const caratula = document.getElementById('caratulaExpediente').value || "SIN_CARATULA_ASIGNADA";
+
+    if (!fileInput.files.length) {
+        alert("⚠️ Por favor, seleccioná el escrito o documento PDF/firmado.");
+        return;
+    }
+
+    const archivo = fileInput.files[0];
+    const reader = new FileReader();
+
+    reader.onload = async function(e) {
+        const buffer = e.target.result;
+        
+        // 1. Calcular Hash SHA-256 del documento localmente
+        const hashBuffer = await crypto.subtle.digest('SHA-256', buffer);
+        const hashArray = Array.from(new Uint8Array(hashBuffer));
+        const hashDocumento = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+
+        const fechaObj = new Date();
+        const timestampISO = fechaObj.toISOString();
+
+        // Mostrar estado de carga en el panel
+        document.getElementById('comprobantePanel').style.display = 'block';
+        document.getElementById('snippetTexto').innerText = "⏳ Conectando con Vertex Axioma® y petrificando en Polygon Amoy...";
+
+        try {
+            // 2. Enviar a la API de Vertex
+            const response = await fetch(API_ENDPOINT, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    rootHash: hashDocumento,
+                    metaHash: caratula,
+                    droneId: "MESA-ENTRADA-JUDICIAL-01",
+                    timestamp: timestampISO
+                })
+            });
+
+            const textResponse = await response.text();
+            let data;
+
+            try {
+                data = JSON.parse(textResponse);
+            } catch (errParse) {
+                throw new Error("El servidor devolvió una respuesta no válida (verificá que Node.js esté corriendo).");
+            }
+
+            if (!response.ok || data.estado !== "PETRIFICADO") {
+                throw new Error(data.motivo || "Error en el proceso de petrificación.");
+            }
+
+            // Datos procesados desde la Blockchain
+            const txHash = data.tx;
+            const dnaDigital = data.dna;
+            const selloID = `SELLO-VER-${fechaObj.getFullYear()}${(fechaObj.getMonth()+1).toString().padStart(2,'0')}${fechaObj.getDate().toString().padStart(2,'0')}-${Math.floor(1000 + Math.random() * 9000)}`;
+
+            // Enlace de verificación unificado usando la constante global
+            const linkPolygonscan = `${POLYGON_EXPLORER_BASE}${txHash}`;
+
+            // 3. Actualizar la vista en pantalla
+            document.getElementById('resTipo').innerText = tipo;
+            document.getElementById('resCaratula').innerText = caratula;
+            document.getElementById('resHash').innerText = hashDocumento;
+            document.getElementById('resSello').innerText = selloID;
+
+            // 4. Texto oficial para copiar y pegar en la Notificación / Correo
+            const textoCorreo = `====================================================
+[PETRIFICACIÓN DE PRUEBA 4.0 — VERTEX AXIOMA®]
+Sello de Inmutabilidad Transfronteriza
+====================================================
+Documento: ${archivo.name}
+Tipo de Presentación: ${tipo}
+Carátula / Causa: ${caratula}
+Fecha/Hora UTC: ${timestampISO}
+
+--- EVIDENCIA CRIPTOGRÁFICA ---
+Hash SHA-256 Documento: ${hashDocumento}
+ADN Digital: ${dnaDigital}
+Sello ID: ${selloID}
+
+--- PETRIFICACIÓN BLOCKCHAIN (POLYGON AMOY TESTNET) ---
+Tx Hash: ${txHash}
+Auditoría Inmutable: ${linkPolygonscan}
+====================================================`;
+
+            document.getElementById('snippetTexto').innerText = textoCorreo;
+
+            // 5. Renderizar Código QR dinámico apuntando a Polygon Amoy
+            const qrContainer = document.getElementById("qrcode");
+            qrContainer.innerHTML = ""; // Limpiar QR anterior
+            
+            qrCodeObj = new QRCode(qrContainer, {
+                text: linkPolygonscan,
+                width: 110,
+                height: 110,
+                colorDark : "#1A2B4C",
+                colorLight : "#ffffff",
+                correctLevel : QRCode.CorrectLevel.H
+            });
+
+        } catch (err) {
+            console.error("Error al petrificar:", err);
+            alert("❌ Falló la petrificación en Polygon Amoy: " + err.message);
+            document.getElementById('snippetTexto').innerText = "❌ ERROR EN BLOCKCHAIN: " + err.message;
+        }
+    };
+
+    reader.readAsArrayBuffer(archivo);
+}
+
+function copiarSnippet() {
+    const texto = document.getElementById('snippetTexto').innerText;
+    navigator.clipboard.writeText(texto).then(() => {
+        alert("📋 ¡Texto de Petrificación copiado! Listo para pegar en el correo o sistema de notificaciones electrónicas.");
+    });
+}
+</script>
+</body>
+</html>
